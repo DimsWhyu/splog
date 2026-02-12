@@ -128,30 +128,34 @@ const CatalogView = ({ inventory, filteredItems, activeCategory, setActiveCatego
           </header>
 
           {/* --- REVISI: CATEGORY NAVIGATION (SINGLE ROW SCROLL + TEXT WRAP) --- */}
-          <div className="flex items-center gap-2 bg-slate-100/80 p-2 rounded-[24px] backdrop-blur-md border border-slate-200/50 shadow-inner overflow-x-auto max-w-full no-scrollbar">
-            <div className="flex flex-nowrap items-stretch gap-2"> {/* flex-nowrap menjaga agar tetap satu baris */}
-              {dynamicCategories.map(cat => (
-                <button 
-                  key={cat} 
-                  onClick={() => setActiveCategory(cat)}
-                  className={`relative min-w-[120px] max-w-[160px] px-5 py-2.5 rounded-xl text-[12px] font-bold transition-all duration-500 tracking-tight flex items-center justify-center text-center overflow-hidden group active:scale-95 border border-transparent
-                    ${activeCategory === cat 
-                      ? 'text-white shadow-md' 
-                      : 'text-slate-400 hover:text-slate-700'}`}
-                >
-                  {/* Warna Pill Ikonik sesuai kategori */}
-                  {activeCategory === cat && (
-                    <div className={`absolute inset-0 z-0 animate-in fade-in zoom-in-95 duration-500 ${getPillColor(cat)}`} />
-                  )}
-                  {activeCategory !== cat && (
-                    <div className="absolute inset-0 z-0 bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  )}
-                  {/* whitespace-normal memungkinkan teks membungkus ke bawah */}
-                  <span className="relative z-10 whitespace-normal leading-tight line-clamp-2">
-                    {cat}
-                  </span>
-                </button>
-              ))}
+          <div className="flex flex-col gap-2"> {/* Bungkus dengan flex-col untuk layout yang lebih rapi */}
+            <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-[24px] border border-slate-100 shadow-inner overflow-x-auto max-w-full custom-scrollbar pb-4">
+              <div className="flex flex-nowrap items-stretch gap-2">
+                {dynamicCategories.map(cat => (
+                  <button 
+                    key={cat} 
+                    onClick={(e) => { 
+                      setActiveCategory(cat);
+                      e.currentTarget.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest',
+                        inline: 'center'
+                      });
+                    }}
+                    className={`relative min-w-[120px] max-w-[160px] px-5 py-2.5 rounded-xl text-[11px] font-bold transition-all duration-500 tracking-tight flex items-center justify-center text-center overflow-hidden group active:scale-95
+                      ${activeCategory === cat 
+                        ? 'text-white shadow-md' 
+                        : 'text-slate-400 hover:text-slate-700'}`}
+                  >
+                    {activeCategory === cat && (
+                      <div className={`absolute inset-0 z-0 animate-in fade-in zoom-in-95 duration-500 ${getPillColor(cat)}`} />
+                    )}
+                    <span className="relative z-10 whitespace-normal leading-tight line-clamp-2">
+                      {cat}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
