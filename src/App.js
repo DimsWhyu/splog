@@ -3,7 +3,6 @@ import { AlertCircle, FileText, Eye, X, Hash, Package } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import Navbar from './components/common/Navbar';
 import Sidebar from './components/common/Sidebar';
-import MobileBottomNav from './components/common/MobileBottomNav';
 import Footer from './components/common/Footer'; 
 import CatalogView from './components/user/CatalogView';
 import CartView from './components/user/CartView';
@@ -15,7 +14,7 @@ import LoginView from './components/common/LoginView';
 import { CartProvider, useCart } from './context/CartContext';
 import './App.css';
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxBAdjy467133odchoT35GkDCZmzD3RbWhKJEDoGecYUX3_X5nC79Z3E3RihEWK81Yy/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxjamHFtqzag-LYmT_Yh4AIfjAI156KSpuGVQGbXGbmgevVttXprl77mmGrqigO7nbW/exec";
 
 const INITIAL_REQUESTS = [];
 
@@ -43,8 +42,10 @@ const AppContent = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [warning, setWarning] = useState({ show: false, message: "" });
   const [selectedRequest, setSelectedRequest] = useState(null);
-  
   const [cancelModal, setCancelModal] = useState({ show: false, request: null });
+
+  // --- PENYESUAIAN 1: STATE UNTUK DRAWER MOBILE ---
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (selectedRequest || cancelModal.show || warning.show) {
@@ -201,30 +202,29 @@ const AppContent = () => {
     } catch (error) { console.error("Delete error:", error); }
   };
 
-  // REVISI 2: Handler untuk Tambah Barang Baru
   const handleAddItem = async (newItem) => {
     try {
-      // 1. Kirim data ke Google Apps Script via POST
-      // Kita gunakan mode: 'no-cors' karena Apps Script tidak mendukung CORS penuh
+      // 1. Kirim data (image berisi Base64 dari input URL) ke Apps Script
       await fetch(WEB_APP_URL, {
         method: "POST",
         mode: "no-cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           action: "addItem", 
-          ...newItem 
+          ...newItem // Di sini imageUrl akan diproses oleh macro.gs menjadi Link Drive
         }),
       });
 
-      // 2. Update state inventory secara lokal agar perubahan langsung terlihat di tabel
+      // 2. Berikan feedback instan di layar
       setInventory(prev => [...prev, newItem]);
       
-      // Kembalikan nilai true untuk memberitahu komponen bahwa proses berhasil
+      // 3. PENTING: Tunggu 3 detik agar Google Drive selesai memproses file, 
+      // lalu ambil data terbaru untuk mengganti Base64 dengan URL asli yang ringan
+      setTimeout(() => fetchAllData(), 3000); 
+
       return true;
     } catch (error) {
-      console.error("Gagal menambahkan barang ke Spreadsheet:", error);
+      console.error("Gagal menyimpan barang:", error);
       return false;
     }
   };
@@ -312,9 +312,30 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-batik-ojk font-sans text-slate-800 animate-content-fade">
-      <Navbar role={role} currentUser={currentUser} onLogout={handleLogout} searchQuery={searchQuery} setSearchQuery={setSearchQuery} setView={setView} inventory={inventory} />
-      <div className="flex-1 max-w-[1440px] mx-auto px-4 lg:px-10 py-8 flex gap-10 w-full items-start">
-        <Sidebar role={role} view={view} setView={setView} />
+      {/* UPDATE: Kirim state drawer ke Navbar */}
+      <Navbar 
+        role={role} 
+        currentUser={currentUser} 
+        onLogout={handleLogout} 
+        searchQuery={searchQuery} 
+        setSearchQuery={setSearchQuery} 
+        setView={setView} 
+        inventory={inventory}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+      />
+
+      <div className="flex-1 max-w-[1440px] mx-auto px-4 lg:px-10 py-8 flex gap-10 w-full items-start relative">
+        {/* UPDATE: Kirim state drawer ke Sidebar */}
+        <Sidebar 
+          role={role} 
+          view={view} 
+          setView={setView} 
+          isOpen={isSidebarOpen} 
+          setIsOpen={setIsSidebarOpen}
+          onLogout={handleLogout}
+          currentUser={currentUser}
+        />
         <main className="flex-1 min-w-0">
           {role === 'user' && view === 'catalog' && <CatalogView inventory={inventory} filteredItems={filteredItems} activeCategory={activeCategory} setActiveCategory={setActiveCategory} handleUpdateQuantity={handleUpdateQuantity} />}
           {role === 'user' && view === 'cart' && <CartView setView={setView} handleCheckout={handleCheckout} inventory={inventory} handleUpdateQuantity={handleUpdateQuantity}/>}
@@ -459,7 +480,7 @@ const AppContent = () => {
       )}
       
       <Footer />
-      <MobileBottomNav role={role} view={view} setView={setView} />
+      {}
     </div>
   );
 };

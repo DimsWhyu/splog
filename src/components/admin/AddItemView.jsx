@@ -70,7 +70,9 @@ const AddItemView = ({ inventory, onAddItem, onCancel }) => {
       }
       const reader = new FileReader();
       reader.onloadend = () => {
+        // REVISI: Set data image dan otomatis pindah ke mode 'url' untuk visualisasi
         setFormData({ ...formData, image: reader.result }); 
+        setImageMode('url'); 
         if (errors.image) setErrors({ ...errors, image: null });
       };
       reader.readAsDataURL(file);
@@ -246,7 +248,17 @@ const AddItemView = ({ inventory, onAddItem, onCancel }) => {
                     <div className="w-full py-4 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center gap-1 bg-white group-hover:border-red-400 transition-all"><Upload className="w-5 h-5 text-slate-400 group-hover:text-red-500" /><p className="text-[10px] font-bold text-slate-500">Klik untuk upload gambar</p></div>
                   </div>
                 ) : (
-                  <div className="relative"><LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" /><input type="text" placeholder="https://example.com/image.png" className={getInputStyle('image')} value={formData.image} onChange={(e) => setFormData({...formData, image: e.target.value})} /></div>
+                  <div className="relative">
+                    <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                    {/* REVISI: Input ini sekarang menampilkan hasil konversi upload tadi */}
+                    <input 
+                      type="text" 
+                      placeholder="https://example.com/image.png atau Data URL" 
+                      className={getInputStyle('image')} 
+                      value={formData.image} 
+                      onChange={(e) => setFormData({...formData, image: e.target.value})} 
+                    />
+                  </div>
                 )}
                 {errors.image && <p className="text-[10px] font-bold text-red-500 mt-2 px-1">{errors.image}</p>}
               </div>

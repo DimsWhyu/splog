@@ -108,18 +108,21 @@ const CatalogView = ({ inventory, filteredItems, activeCategory, setActiveCatego
       </button>
 
       {/* STICKY HEADER CATALOG */}
-      <div className="sticky top-[96px] z-40 bg-[#FDFDFD] -mx-4 px-4 pb-8 pt-4 transition-all rounded-[20px] border-b border-transparent">
-        <div className="space-y-8">
+      <div className="sticky top-[66px] md:top-[96px] z-40 bg-[#f8fafc] -mx-4 px-4 pt-4 pb-2">
+        {/* Inner Container: Warna Putih & Melengkung */}
+        <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 space-y-6">
           <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-start gap-4">
               {/* Header Shape Aksen Merah OJK */}
               <div className="w-1.5 h-12 bg-red-600 rounded-full mt-1 hidden md:block"></div>
               <div>
-                <h2 className="text-3xl font-black text-slate-800 tracking-tighter flex items-center gap-3">
+                <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tighter flex items-center gap-3">
                   <Package className="w-8 h-8 text-red-600 md:hidden" />
                   Pusat Pengelolaan Logistik
                 </h2>
-                <p className="text-slate-400 font-medium text-sm italic">Pengelolaan Pengajuan Logistik Terintegrasi dengan Kontrol Kuantitas Real-Time.</p>
+                <p className="text-slate-400 font-medium text-[11px] md:text-sm italic">
+                  Pengelolaan Pengajuan Logistik Terintegrasi dengan Kontrol Kuantitas Real-Time.
+                </p>
               </div>
             </div>
           </header>

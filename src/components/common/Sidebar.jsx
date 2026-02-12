@@ -5,91 +5,143 @@ import {
   LayoutDashboard, 
   Archive,
   Users,
-  PlusCircle // TAMBAHKAN ICON PLUS UNTUK TAMBAH BARANG
+  PlusCircle, // Icon untuk Tambah Barang
+  X,
+  ChevronRight,
+  LogOut
 } from 'lucide-react';
 
-const Sidebar = ({ role, view, setView }) => {
+const Sidebar = ({ role, view, setView, isOpen, setIsOpen, currentUser, onLogout }) => {
   return (
-    <aside className="sticky top-28 hidden lg:block w-72 shrink-0 space-y-8 self-start h-fit transition-all duration-300">
-      <div className="space-y-1">
-        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-4 mb-4">
-          Panel Navigasi
-        </p>
+    <>
+      {/* 1. BACKDROP: Area gelap transparan di belakang laci */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] lg:hidden animate-in fade-in duration-300"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
-        {role === 'user' ? (
-          <>
-            <button 
-              onClick={() => setView('catalog')}
-              className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-black transition-all ${
-                view === 'catalog' 
-                ? 'bg-red-600 text-white shadow-xl shadow-red-200 scale-[1.02]' 
-                : 'text-slate-500 hover:bg-white hover:text-red-600'
-              }`}
-            >
-              <Package className="w-5 h-5" /> Katalog Logistik
-            </button>
+      {/* 2. SIDEBAR CONTAINER: Slide dari KIRI */}
+      <aside className={`
+        fixed lg:sticky top-0 lg:top-28 left-0 
+        h-full lg:h-fit w-[280px] md:w-[320px] lg:w-72 
+        bg-white lg:bg-transparent z-[200] lg:z-0
+        border-r lg:border-none border-slate-100
+        transition-transform duration-500 ease-in-out transform
+        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        flex flex-col lg:block shadow-2xl lg:shadow-none
+      `}>
+        
+        {/* HEADER DRAWER (Gaya myITS - Hanya Mobile) */}
+        <div className="p-8 bg-gradient-to-br from-red-700 to-[#4a0404] text-white lg:hidden relative">
+          {/* Tombol Close Pojok Kanan Atas Drawer */}
+          <button 
+            onClick={() => setIsOpen(false)}
+            className="absolute top-6 right-6 p-2 bg-white/10 rounded-xl hover:bg-white/20 transition-all"
+          >
+            <X className="w-5 h-5 text-white" />
+          </button>
+          
+          <div className="flex flex-col items-center text-center mt-4">
+            <div className="w-16 h-16 bg-white/20 rounded-[20px] flex items-center justify-center mb-4 border border-white/30 text-2xl font-black shadow-inner uppercase">
+               {currentUser?.name?.substring(0, 1) || 'D'}
+            </div>
+            <h3 className="font-bold text-lg leading-tight truncate w-full">
+              {currentUser?.name || 'Dimas Wahyu Saputra'}
+            </h3>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mt-1">
+              {role} ACCESS • OJK JATIM
+            </p>
+          </div>
+        </div>
 
-            <button 
-              onClick={() => setView('history')}
-              className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-black transition-all ${
-                view === 'history' 
-                ? 'bg-red-600 text-white shadow-xl shadow-red-200 scale-[1.02]' 
-                : 'text-slate-500 hover:bg-white hover:text-red-600'
-              }`}
-            >
-              <ClipboardList className="w-5 h-5" /> Lacak Pengajuan
-            </button>
-          </>
-        ) : (
-          <>
-            <button 
-              onClick={() => setView('dashboard')}
-              className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-black transition-all ${
-                view === 'dashboard' 
-                ? 'bg-red-600 text-white shadow-xl shadow-red-200 scale-[1.02]' 
-                : 'text-slate-500 hover:bg-white hover:text-red-600'
-              }`}
-            >
-              <LayoutDashboard className="w-5 h-5" /> Dashboard Admin
-            </button>
+        {/* LIST TOMBOL NAVIGASI */}
+        <div className="flex-1 lg:flex-none p-6 lg:p-0 space-y-2 lg:space-y-1 overflow-y-auto custom-scrollbar">
+          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-4 mb-4">
+            Navigasi Utama
+          </p>
 
-            <button 
-              onClick={() => setView('admin-inventory')}
-              className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-black transition-all ${
-                view === 'admin-inventory' 
-                ? 'bg-red-600 text-white shadow-xl shadow-red-200 scale-[1.02]' 
-                : 'text-slate-500 hover:bg-white hover:text-red-600'
-              }`}
-            >
-              <Archive className="w-5 h-5" /> Inventaris Kantor
-            </button>
+          {role === 'user' ? (
+            <>
+              <button 
+                onClick={() => { setView('catalog'); setIsOpen(false); }}
+                className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl text-sm font-black transition-all ${
+                  view === 'catalog' ? 'bg-red-600 text-white shadow-xl shadow-red-200' : 'text-slate-500 hover:bg-slate-50 hover:text-red-600'
+                }`}
+              >
+                <div className="flex items-center gap-4"><Package className="w-5 h-5" /> Katalog Logistik</div>
+                <ChevronRight className={`w-4 h-4 lg:hidden ${view === 'catalog' ? 'opacity-100' : 'opacity-0'}`} />
+              </button>
 
-            {/* BARU: Button Tambah Barang */}
-            <button 
-              onClick={() => setView('add-item')}
-              className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-black transition-all ${
-                view === 'add-item' 
-                ? 'bg-red-600 text-white shadow-xl shadow-red-200 scale-[1.02]' 
-                : 'text-slate-500 hover:bg-white hover:text-red-600'
-              }`}
-            >
-              <PlusCircle className="w-5 h-5" /> Tambah Barang
-            </button>
+              <button 
+                onClick={() => { setView('history'); setIsOpen(false); }}
+                className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl text-sm font-black transition-all ${
+                  view === 'history' ? 'bg-red-600 text-white shadow-xl shadow-red-200' : 'text-slate-500 hover:bg-slate-50 hover:text-red-600'
+                }`}
+              >
+                <div className="flex items-center gap-4"><ClipboardList className="w-5 h-5" /> Lacak Pengajuan</div>
+                <ChevronRight className={`w-4 h-4 lg:hidden ${view === 'history' ? 'opacity-100' : 'opacity-0'}`} />
+              </button>
+            </>
+          ) : (
+            <>
+              {/* NAVIGASI ADMIN (SINKRON & PROPOSIONAL) */}
+              <button 
+                onClick={() => { setView('dashboard'); setIsOpen(false); }}
+                className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl text-sm font-black transition-all ${
+                  view === 'dashboard' ? 'bg-red-600 text-white shadow-xl shadow-red-200' : 'text-slate-500 hover:bg-slate-50 hover:text-red-600'
+                }`}
+              >
+                <div className="flex items-center gap-4"><LayoutDashboard className="w-5 h-5" /> Panel Dashboard</div>
+                <ChevronRight className={`w-4 h-4 lg:hidden ${view === 'dashboard' ? 'opacity-100' : 'opacity-0'}`} />
+              </button>
 
-            <button 
-              onClick={() => setView('manage-users')}
-              className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-black transition-all ${
-                view === 'manage-users' 
-                ? 'bg-red-600 text-white shadow-xl shadow-red-200 scale-[1.02]' 
-                : 'text-slate-500 hover:bg-white hover:text-red-600'
-              }`}
-            >
-              <Users className="w-5 h-5" /> Manajemen User
-            </button>
-          </>
-        )}
-      </div>
-    </aside>
+              <button 
+                onClick={() => { setView('admin-inventory'); setIsOpen(false); }}
+                className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl text-sm font-black transition-all ${
+                  view === 'admin-inventory' ? 'bg-red-600 text-white shadow-xl shadow-red-200' : 'text-slate-500 hover:bg-slate-50 hover:text-red-600'
+                }`}
+              >
+                <div className="flex items-center gap-4"><Archive className="w-5 h-5" /> Stok Barang</div>
+                <ChevronRight className={`w-4 h-4 lg:hidden ${view === 'admin-inventory' ? 'opacity-100' : 'opacity-0'}`} />
+              </button>
+
+              {/* TOMBOL TAMBAH BARANG (BARU UNTUK ADMIN) */}
+              <button 
+                onClick={() => { setView('add-item'); setIsOpen(false); }}
+                className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl text-sm font-black transition-all ${
+                  view === 'add-item' ? 'bg-red-600 text-white shadow-xl shadow-red-200' : 'text-slate-500 hover:bg-slate-50 hover:text-red-600'
+                }`}
+              >
+                <div className="flex items-center gap-4"><PlusCircle className="w-5 h-5" /> Tambah Barang</div>
+                <ChevronRight className={`w-4 h-4 lg:hidden ${view === 'add-item' ? 'opacity-100' : 'opacity-0'}`} />
+              </button>
+
+              <button 
+                onClick={() => { setView('manage-users'); setIsOpen(false); }}
+                className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl text-sm font-black transition-all ${
+                  view === 'manage-users' ? 'bg-red-600 text-white shadow-xl shadow-red-200' : 'text-slate-500 hover:bg-slate-50 hover:text-red-600'
+                }`}
+              >
+                <div className="flex items-center gap-4"><Users className="w-5 h-5" /> Kelola User</div>
+                <ChevronRight className={`w-4 h-4 lg:hidden ${view === 'manage-users' ? 'opacity-100' : 'opacity-0'}`} />
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* 3. FOOTER DRAWER: Tombol Logout Khusus Mobile */}
+        <div className="p-6 border-t border-slate-50 lg:hidden mt-auto">
+          <button 
+            onClick={() => { onLogout(); setIsOpen(false); }} 
+            className="w-full py-4 bg-red-50 text-red-600 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-sm"
+          >
+            <LogOut className="w-4 h-4" /> Keluar Sistem
+          </button>
+        </div>
+      </aside>
+    </>
   );
 };
 

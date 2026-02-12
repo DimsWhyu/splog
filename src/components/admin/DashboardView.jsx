@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react'; // Menambahkan useEffect & useRef
+import React, { useState, useEffect, useRef } from 'react';
 import ApprovalSection from './ApprovalSection';
 import { 
   History, CheckCircle2, XCircle, PackageSearch, LayoutDashboard, 
-  MinusCircle, Search, Calendar, Filter, RotateCcw, ChevronDown, Check 
-} from 'lucide-react'; // Menambahkan Check icon
+  MinusCircle, Search, Calendar, Filter, RotateCcw, ChevronDown, Check,
+  Settings, Package, LogOut // Tambahan Icon untuk Menu
+} from 'lucide-react';
 
-const DashboardView = ({ requests, handleApproval, onViewDetails }) => {
-  // --- STATE UNTUK FILTER GRANULAR ---
+const DashboardView = ({ requests, handleApproval, onViewDetails, setView }) => {
+  // --- KODE ASLI DIMAS (TETAP) ---
   const [filters, setFilters] = useState({
     ref: '',
     name: '',
@@ -14,15 +15,21 @@ const DashboardView = ({ requests, handleApproval, onViewDetails }) => {
     status: 'Semua'
   });
 
-  // --- BARU: STATE & REF UNTUK CUSTOM DROPDOWN ---
   const [isStatusOpen, setIsStatusOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Menutup dropdown jika user mengklik di luar area
+  // --- PENYESUAIAN 1: TAMBAH STATE & REF MENU ---
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsStatusOpen(false);
+      }
+      // Logika tutup menu jika klik di luar
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -31,14 +38,14 @@ const DashboardView = ({ requests, handleApproval, onViewDetails }) => {
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
-    if (key === 'status') setIsStatusOpen(false); // Otomatis tutup setelah pilih
+    if (key === 'status') setIsStatusOpen(false);
   };
 
   const resetFilters = () => {
     setFilters({ ref: '', name: '', date: '', status: 'Semua' });
   };
 
-  // --- LOGIKA FILTERING MULTI-KOLOM ---
+  // --- KODE ASLI DIMAS (LOGIKA FILTER TETAP) ---
   const historyRequests = requests
     .filter(r => {
       const isProcessed = r.status !== 'Menunggu';
@@ -54,15 +61,42 @@ const DashboardView = ({ requests, handleApproval, onViewDetails }) => {
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       
-      {/* 1. HEADER SECTION (OJK Style) */}
-      <div className="flex items-start gap-4">
-        <div className="w-1.5 h-12 bg-red-600 rounded-full mt-1 hidden md:block"></div>
-        <div className="space-y-1">
-          <h2 className="text-3xl font-black text-slate-800 tracking-tighter flex items-center gap-3">
-            <LayoutDashboard className="w-8 h-8 text-red-600" />
-            Persetujuan & Riwayat Aktivitas
-          </h2>
-          <p className="text-slate-400 font-medium text-sm italic">Sistem Verifikasi Logistik Terintegrasi OJK Jawa Timur</p>
+      {/* --- PENYESUAIAN 2: HEADER DENGAN BURGER MENU MOBILE --- */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-start gap-4">
+          <div className="w-1.5 h-12 bg-red-600 rounded-full mt-1 hidden md:block"></div>
+          <div className="space-y-1">
+            <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tighter flex items-center gap-3">
+              <LayoutDashboard className="w-6 h-6 md:w-8 md:h-8 text-red-600" />
+              <span className="truncate">Persetujuan & Riwayat</span>
+            </h2>
+            <p className="text-slate-400 font-medium text-[10px] md:text-sm italic">Sistem Verifikasi Logistik OJK Jawa Timur</p>
+          </div>
+        </div>
+
+        {/* COMPONENT BURGER MENU (Hanya muncul di layar kecil) */}
+        <div className="md:hidden relative" ref={menuRef}>
+
+          {/* DROPDOWN NAVIGASI MOBILE */}
+          {isMenuOpen && (
+            <div className="absolute top-16 right-0 w-64 bg-white rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 overflow-hidden z-[100] animate-in fade-in zoom-in-95 duration-200 p-2">
+              <div className="space-y-1">
+                <button onClick={() => {setView('dashboard'); setIsMenuOpen(false);}} className="flex items-center gap-3 w-full px-4 py-3 rounded-xl hover:bg-red-50 text-slate-600 hover:text-red-600 transition-all font-bold text-xs">
+                  <LayoutDashboard className="w-4 h-4" /> Dashboard
+                </button>
+                <button onClick={() => {setView('admin-inventory'); setIsMenuOpen(false);}} className="flex items-center gap-3 w-full px-4 py-3 rounded-xl hover:bg-red-50 text-slate-600 hover:text-red-600 transition-all font-bold text-xs">
+                  <Package className="w-4 h-4" /> Stok Barang
+                </button>
+                <button onClick={() => {setView('manage-users'); setIsMenuOpen(false);}} className="flex items-center gap-3 w-full px-4 py-3 rounded-xl hover:bg-red-50 text-slate-600 hover:text-red-600 transition-all font-bold text-xs">
+                  <Settings className="w-4 h-4" /> Kelola User
+                </button>
+                <hr className="my-2 border-slate-50" />
+                <button className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-600 font-bold text-xs hover:bg-red-50">
+                  <LogOut className="w-4 h-4" /> Keluar Sistem
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,5 +1,26 @@
-/* --- ANIMASI MODAL & OVERLAY --- */
+/* --- GLOBAL SCALING (Zoom Out Adjustment) --- */
+html {
+  font-size: 16px; /* Standar Desktop */
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
 
+@media (max-width: 768px) {
+  html {
+    font-size: 13px; 
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Memastikan input field tetap proposional di mobile */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* --- KODE ASLI (JANGAN DIUBAH) --- */
+
+/* --- ANIMASI MODAL & OVERLAY --- */
 @keyframes modalPop {
   0% { transform: scale(0.9); opacity: 0; }
   70% { transform: scale(1.05); }
@@ -20,7 +41,6 @@
 }
 
 /* --- ANIMASI SPLASH SCREEN (Sharp & Premium) --- */
-
 @keyframes logoEntrance {
   0% { transform: scale(0.8); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
@@ -51,7 +71,6 @@
   100% { opacity: 1; }
 }
 
-/* Helper Classes */
 .animate-logo-entrance {
   animation: logoEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -77,7 +96,6 @@
 }
 
 /* --- ANIMASI DASAR APLIKASI --- */
-
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
@@ -109,18 +127,17 @@
   animation: progress-loading 1.5s infinite linear;
 }
 
-/* Custom Scrollbar Style yang senada dengan CatalogView */
+/* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f5f9; /* slate-100 */
+  background: #f1f5f9; 
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  /* Gradasi merah sesuai CatalogView: red-500 via red-700 to maroon */
   background: linear-gradient(to bottom, #ef4444, #b91c1c, #4a0404);
   border-radius: 10px;
 }
@@ -129,15 +146,11 @@
   background: #991b1b;
 }
 
-/* src/App.css */
-
+/* Background Style */
 .bg-batik-ojk {
-  background-color: #f8fafc; /* Warna dasar Slate yang bersih agar mata tidak lelah */
-  
-  /* Gradasi merah OJK tipis di bagian bawah saja */
+  background-color: #f8fafc; 
   background-image: linear-gradient(to top, rgba(220, 38, 38, 0.08) 0%, transparent 20%);
-  
-  background-attachment: fixed; /* Membuat gradasi tetap berada di bawah layar saat di-scroll */
+  background-attachment: fixed; 
   background-repeat: no-repeat;
   background-size: cover;
 }

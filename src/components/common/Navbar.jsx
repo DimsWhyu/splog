@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ShoppingCart, User, Search, X, LogOut, ChevronDown, Mail } from 'lucide-react';
+import { 
+  ShoppingCart, User, Search, X, LogOut, ChevronDown, Mail, 
+  Menu
+} from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 
-const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setView, inventory = [] }) => {
+// PENYESUAIAN: Pastikan memanggil prop setIsSidebarOpen dari App.js
+const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setView, inventory = [], setIsSidebarOpen }) => {
   const { cart } = useCart();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -12,6 +16,7 @@ const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setV
   const profileRef = useRef(null);
 
   const totalQty = cart.reduce((acc, curr) => acc + curr.quantity, 0);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -26,7 +31,6 @@ const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setV
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // REVISI: Menghapus .slice(0, 5) agar semua item masuk ke list
   const suggestions = inventory.filter(item => 
     searchQuery && 
     item.name?.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -42,7 +46,6 @@ const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setV
 
   const handleKeyDown = (e) => {
     if (!showSuggestions || suggestions.length === 0) return;
-
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setFocusedIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : 0));
@@ -61,37 +64,43 @@ const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setV
 
   return (
     <nav className="bg-white border-b border-slate-100 sticky top-0 z-[100] shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 lg:px-8 h-24 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 lg:px-8 h-20 md:h-24 flex items-center justify-between gap-4">
         
-        {/* Logo Section */}
-        <div className="flex items-center gap-5 cursor-pointer shrink-0" onClick={() => setView('catalog')}>
-          <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/OJK_Logo.png" alt="OJK" className="h-12" />
-          <div className="h-10 w-[1px] bg-slate-200 hidden sm:block"></div>
-          <div className="hidden sm:block leading-tight">
-            <h1 className="text-2xl font-black text-red-700 tracking-tighter uppercase">SPLOG</h1>
-            <p className="text-[11px] text-slate-400 font-semibold tracking-wider">OJK Provinsi Jawa Timur</p>
+        {/* SISI KIRI: Burger Menu & Logo Section */}
+        <div className="flex items-center gap-3 md:gap-5 shrink-0">
+          
+          {/* --- TOMBOL BURGER MENU (Tampil di Tablet & HP) --- */}
+          <button 
+            onClick={() => setIsSidebarOpen(true)}
+            className="lg:hidden p-3 bg-slate-50 text-red-600 rounded-2xl active:scale-95 transition-all border border-slate-100 shadow-sm"
+          >
+            <Menu className="w-6 h-6 md:w-7 md:h-7" />
+          </button>
+
+          {/* Logo Content */}
+          <div className="flex items-center gap-3 md:gap-5 cursor-pointer" onClick={() => setView(role === 'admin' ? 'dashboard' : 'catalog')}>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/OJK_Logo.png" alt="OJK" className="h-10 md:h-12" />
+            <div className="h-10 w-[1px] bg-slate-200 hidden sm:block"></div>
+            <div className="hidden sm:block leading-tight">
+              <h1 className="text-xl md:text-2xl font-black text-red-700 tracking-tighter uppercase leading-none">SPLOG</h1>
+              <p className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">OJK Provinsi Jawa Timur</p>
+            </div>
           </div>
         </div>
 
-        {/* Search Bar Section */}
+        {/* TENGAH: Search Bar Section (Tetap seperti aslinya) */}
         {role !== 'admin' ? (
-          <div className="flex-1 max-w-xl mx-6 hidden md:block relative" ref={searchRef}>
+          <div className="flex-1 max-w-xl mx-6 hidden lg:block relative" ref={searchRef}>
             <div className="relative group z-50">
               <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${searchQuery ? 'text-red-500' : 'text-slate-300'}`} />
               <input 
                 type="text" 
                 placeholder="Cari kebutuhan logistik..."
                 className={`w-full bg-slate-50 border border-slate-100 focus:bg-white text-sm font-medium text-slate-600 transition-all outline-none shadow-inner py-3.5 pl-12 pr-12 ${
-                  showSuggestions && suggestions.length > 0 
-                  ? 'rounded-t-2xl border-b-transparent focus:border-red-100' 
-                  : 'rounded-2xl focus:border-red-200'
+                  showSuggestions && suggestions.length > 0 ? 'rounded-t-2xl border-b-transparent focus:border-red-100' : 'rounded-2xl focus:border-red-200'
                 }`}
                 value={searchQuery}
-                onChange={(e) => { 
-                  setSearchQuery(e.target.value); 
-                  setShowSuggestions(true);
-                  setFocusedIndex(-1); 
-                }}
+                onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); setFocusedIndex(-1); }}
                 onFocus={() => setShowSuggestions(true)}
                 onKeyDown={handleKeyDown}
               />
@@ -100,7 +109,6 @@ const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setV
               )}
             </div>
 
-            {/* REVISI: Penambahan max-h-[340px] dan overflow-y-auto serta custom-scrollbar */}
             {showSuggestions && suggestions.length > 0 && (
               <div className="absolute top-full left-0 right-0 bg-white rounded-b-2xl shadow-2xl border border-slate-100 border-t-0 max-h-[340px] overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-top-1 duration-200 p-2 z-40">
                 {suggestions.map((item, index) => (
@@ -108,25 +116,15 @@ const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setV
                     key={item.id} 
                     onClick={() => handleSelectSuggestion(item.name)} 
                     onMouseEnter={() => setFocusedIndex(index)}
-                    className={`w-full flex items-center justify-between gap-4 px-4 py-3 rounded-xl text-left group transition-all ${
-                      focusedIndex === index ? 'bg-red-50' : 'hover:bg-slate-50'
-                    }`}
+                    className={`w-full flex items-center justify-between gap-4 px-4 py-3 rounded-xl text-left group transition-all ${focusedIndex === index ? 'bg-red-50' : 'hover:bg-slate-50'}`}
                   >
                     <div className="flex items-center gap-4 min-w-0">
                       <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden shrink-0">
                         <img src={item.image} alt="" className="w-full h-full object-cover" />
                       </div>
-                      <span className={`text-sm font-semibold transition-colors truncate ${focusedIndex === index ? 'text-red-600' : 'text-slate-700'}`}>
-                        {item.name}
-                      </span>
+                      <span className={`text-sm font-semibold transition-colors truncate ${focusedIndex === index ? 'text-red-600' : 'text-slate-700'}`}>{item.name}</span>
                     </div>
-                    <span className={`text-[9px] font-bold px-2 py-1 rounded-md border uppercase shrink-0 transition-colors ${
-                      item.category === 'ATK' 
-                      ? 'bg-blue-50 text-blue-600 border-blue-100' 
-                      : 'bg-orange-50 text-orange-600 border-orange-100'
-                    }`}>
-                      {item.category}
-                    </span>
+                    <span className={`text-[9px] font-bold px-2 py-1 rounded-md border uppercase shrink-0 transition-colors ${item.category === 'ATK' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-orange-50 text-orange-600 border-orange-100'}`}>{item.category}</span>
                   </button>
                 ))}
               </div>
@@ -136,15 +134,13 @@ const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setV
           <div className="flex-1" />
         )}
 
-        {/* Profile & User Section */}
-        <div className="flex items-center gap-6 shrink-0 h-full">
+        {/* SISI KANAN: Profile & User Section (Tetap seperti aslinya) */}
+        <div className="flex items-center gap-3 md:gap-6 shrink-0 h-full">
           {role === 'user' && (
             <button onClick={() => setView('cart')} className="relative p-3 text-slate-500 hover:bg-slate-50 hover:text-red-600 rounded-2xl transition-all">
               <ShoppingCart className="w-6 h-6" />
               {totalQty > 0 && (
-                <span className="absolute top-1 right-1 bg-red-600 text-white text-[10px] font-bold w-6 h-6 flex items-center justify-center rounded-full ring-4 ring-white">
-                  {totalQty}
-                </span>
+                <span className="absolute top-1 right-1 bg-red-600 text-white text-[10px] font-bold w-6 h-6 flex items-center justify-center rounded-full ring-4 ring-white">{totalQty}</span>
               )}
             </button>
           )}
@@ -152,7 +148,7 @@ const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setV
           <div className="relative h-full flex items-center" ref={profileRef}>
             <button 
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className={`flex items-center gap-4 pl-6 pr-4 h-full transition-all duration-300 border-l-2 border-slate-100 group ${
+              className={`flex items-center gap-2 md:gap-4 pl-3 md:pl-6 pr-2 md:pr-4 h-full transition-all duration-300 border-l-2 border-slate-100 group ${
                 showProfileMenu ? 'bg-slate-50/80 border-b-2 border-b-red-600' : 'hover:bg-slate-50/50'
               }`}
             >
@@ -163,8 +159,7 @@ const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setV
                    <ChevronDown className={`w-4 h-4 text-slate-300 transition-transform duration-300 ${showProfileMenu ? 'rotate-180 text-red-600' : ''}`} />
                 </div>
               </div>
-              
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 transition-all duration-300 overflow-hidden ${
+              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center border-2 transition-all duration-300 overflow-hidden ${
                 showProfileMenu ? 'border-red-600 shadow-lg scale-105' : 'border-white bg-slate-100 text-slate-500 shadow-sm'
               }`}>
                 {currentUser?.name ? (
@@ -186,16 +181,9 @@ const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setV
                     </div>
                   </div>
                 </div>
-
                 <div className="p-2">
-                  <button 
-                    onClick={onLogout}
-                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-all group/logout"
-                  >
-                    <div className="flex items-center gap-3">
-                      <LogOut className="w-4 h-4 transition-transform group-hover/logout:-translate-x-1" />
-                      Log Out
-                    </div>
+                  <button onClick={onLogout} className="w-full flex items-center justify-between px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-all group/logout">
+                    <div className="flex items-center gap-3"><LogOut className="w-4 h-4 transition-transform group-hover/logout:-translate-x-1" /> Log Out</div>
                     <div className="w-1.5 h-1.5 rounded-full bg-red-600 opacity-0 group-hover/logout:opacity-100 transition-all"></div>
                   </button>
                 </div>
