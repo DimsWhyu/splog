@@ -1,6 +1,6 @@
 /* --- GLOBAL SCALING (Zoom Out Adjustment) --- */
 html {
-  font-size: 12px; /* Standar Desktop */
+  font-size: 13px; /* Standar Desktop */
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
 }

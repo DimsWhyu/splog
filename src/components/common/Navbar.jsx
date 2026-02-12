@@ -5,7 +5,6 @@ import {
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 
-// PENYESUAIAN: Pastikan memanggil prop setIsSidebarOpen dari App.js
 const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setView, inventory = [], setIsSidebarOpen }) => {
   const { cart } = useCart();
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -64,33 +63,33 @@ const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setV
 
   return (
     <nav className="bg-white border-b border-slate-100 sticky top-0 z-[100] shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 lg:px-8 h-20 md:h-24 flex items-center justify-between gap-4">
+      {/* UPDATE: Mengubah max-w-7xl menjadi max-w-[1440px] dan 
+         menyesuaikan padding agar balance (px-6 lg:px-10) 
+      */}
+      <div className="max-w-[1440px] mx-auto px-6 lg:px-10 h-20 md:h-24 flex items-center justify-between gap-4">
         
-        {/* SISI KIRI: Burger Menu & Logo Section */}
-        <div className="flex items-center gap-3 md:gap-5 shrink-0">
-          
-          {/* --- TOMBOL BURGER MENU (Tampil di Tablet & HP) --- */}
+        {/* SISI KIRI: Brand Section */}
+        <div className="flex items-center gap-4 md:gap-6 shrink-0">
           <button 
             onClick={() => setIsSidebarOpen(true)}
-            className="lg:hidden p-3 bg-slate-50 text-red-600 rounded-2xl active:scale-95 transition-all border border-slate-100 shadow-sm"
+            className="lg:hidden p-2.5 bg-slate-50 text-red-600 rounded-2xl active:scale-95 transition-all border border-slate-100 shadow-sm"
           >
             <Menu className="w-6 h-6 md:w-7 md:h-7" />
           </button>
 
-          {/* Logo Content */}
-          <div className="flex items-center gap-3 md:gap-5 cursor-pointer" onClick={() => setView(role === 'admin' ? 'dashboard' : 'catalog')}>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/OJK_Logo.png" alt="OJK" className="h-10 md:h-12" />
+          <div className="flex items-center gap-4 cursor-pointer" onClick={() => setView(role === 'admin' ? 'dashboard' : 'catalog')}>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/OJK_Logo.png" alt="OJK" className="h-10 md:h-12 w-auto object-contain" />
             <div className="h-10 w-[1px] bg-slate-200 hidden sm:block"></div>
             <div className="hidden sm:block leading-tight">
               <h1 className="text-xl md:text-2xl font-black text-red-700 tracking-tighter uppercase leading-none">SPLOG</h1>
-              <p className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">OJK Provinsi Jawa Timur</p>
+              <p className="text-[10px] text-slate-400 font-bold tracking-wider uppercase mt-0.5">OJK Provinsi Jawa Timur</p>
             </div>
           </div>
         </div>
 
-        {/* TENGAH: Search Bar Section (Tetap seperti aslinya) */}
+        {/* TENGAH: Search Bar Section (Proporsi flex-1 agar mengisi ruang tengah secara seimbang) */}
         {role !== 'admin' ? (
-          <div className="flex-1 max-w-xl mx-6 hidden lg:block relative" ref={searchRef}>
+          <div className="flex-1 max-w-xl hidden lg:block relative mx-4" ref={searchRef}>
             <div className="relative group z-50">
               <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${searchQuery ? 'text-red-500' : 'text-slate-300'}`} />
               <input 
@@ -134,8 +133,8 @@ const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setV
           <div className="flex-1" />
         )}
 
-        {/* SISI KANAN: Profile & User Section (Tetap seperti aslinya) */}
-        <div className="flex items-center gap-3 md:gap-6 shrink-0 h-full">
+        {/* SISI KANAN: Profile & Cart Section */}
+        <div className="flex items-center gap-4 md:gap-6 shrink-0 h-full">
           {role === 'user' && (
             <button onClick={() => setView('cart')} className="relative p-3 text-slate-500 hover:bg-slate-50 hover:text-red-600 rounded-2xl transition-all">
               <ShoppingCart className="w-6 h-6" />
@@ -148,15 +147,15 @@ const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setV
           <div className="relative h-full flex items-center" ref={profileRef}>
             <button 
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className={`flex items-center gap-2 md:gap-4 pl-3 md:pl-6 pr-2 md:pr-4 h-full transition-all duration-300 border-l-2 border-slate-100 group ${
+              className={`flex items-center gap-3 md:gap-4 pl-4 md:pl-6 pr-2 md:pr-4 h-full transition-all duration-300 border-l border-slate-100 group ${
                 showProfileMenu ? 'bg-slate-50/80 border-b-2 border-b-red-600' : 'hover:bg-slate-50/50'
               }`}
             >
-              <div className="text-right hidden sm:block">
-                <p className="text-[14px] font-bold text-slate-800 leading-none mb-1.5">{currentUser?.name || 'Pegawai OJK'}</p>
+              <div className="text-right hidden sm:block leading-tight">
+                <p className="text-[14px] font-bold text-slate-800 mb-1">{currentUser?.name || 'Pegawai OJK'}</p>
                 <div className="flex items-center gap-2 justify-end">
-                   <span className="text-[10px] font-bold text-red-600 uppercase tracking-widest px-2 py-1 bg-red-50 rounded-lg border border-red-100 shadow-sm">{role}</span>
-                   <ChevronDown className={`w-4 h-4 text-slate-300 transition-transform duration-300 ${showProfileMenu ? 'rotate-180 text-red-600' : ''}`} />
+                   <span className="text-[9px] font-black text-red-600 uppercase tracking-widest px-2 py-0.5 bg-red-50 rounded-md border border-red-100 shadow-sm">{role}</span>
+                   <ChevronDown className={`w-3.5 h-3.5 text-slate-300 transition-transform duration-300 ${showProfileMenu ? 'rotate-180 text-red-600' : ''}`} />
                 </div>
               </div>
               <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center border-2 transition-all duration-300 overflow-hidden ${
@@ -170,6 +169,7 @@ const Navbar = ({ role, currentUser, onLogout, searchQuery, setSearchQuery, setV
               </div>
             </button>
 
+            {/* Profile Dropdown (Sama seperti sebelumnya) */}
             {showProfileMenu && (
               <div className="absolute top-full right-0 w-64 bg-white rounded-b-2xl shadow-2xl border border-slate-100 border-t-0 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-300 z-50">
                 <div className="p-5 bg-gradient-to-br from-slate-50 to-white border-b border-slate-100">
