@@ -59,10 +59,7 @@ const AppContent = () => {
   const { cart, clearCart, addToCart: addToCartContext, updateCartQty, getCartItem } = useCart();
   
   // --- REVISI: FUNGSI fetchAllData UNTUK SINKRONISASI RIWAYAT ---
-  const fetchAllData = async (isSilent = false) => {
-      // Hanya tampilkan loading jika bukan update otomatis (silent)
-      if (!isSilent) setIsLoading(true); 
-
+  const fetchAllData = async () => {
       try {
         const response = await fetch(WEB_APP_URL); 
         const data = await response.json(); 
@@ -74,8 +71,10 @@ const AppContent = () => {
         }));
         setInventory(formattedInventory);
 
+        // --- REVISI App.js (Bagian fetchAllData) ---
         if (data.history) {
           const formattedHistory = data.history.map(h => {
+            // Sesuaikan mapping dengan safeKey (huruf kecil semua, tanpa spasi/titik)
             const summaryStr = h.detailbarang || h["detailbarang"] || "";
             
             const itemsDetailArray = summaryStr.split(', ').map(part => {
@@ -94,18 +93,20 @@ const AppContent = () => {
               };
             }).filter(Boolean);
 
+            // Ambil data menggunakan Safe Key yang konsisten
             return {
-              id: h.noreferensi || h["noreferensi"], 
-              user: h.namapengaju || h["namapengaju"], 
-              date: h.tanggalpengajuan || h.tanggal || h["tanggal"], 
-              note: h.tujuankebutuhan || h.tujuan || h["tujuan"], 
-              status: h.statusverifikasi || h.status || h["status"], 
+              id: h.noreferensi || h["noreferensi"], // Dari "No. Referensi"
+              user: h.namapengaju || h["namapengaju"], // Dari "Nama Pengaju"
+              date: h.tanggalpengajuan || h.tanggal || h["tanggal"], // Dari "Tanggal Pengajuan"
+              note: h.tujuankebutuhan || h.tujuan || h["tujuan"], // Dari "Tujuan Kebutuhan"
+              status: h.statusverifikasi || h.status || h["status"], // Dari "Status Verifikasi"
               itemsDetail: itemsDetailArray 
             };
           });
           setRequests(formattedHistory);
         }
 
+        // Logika session login tetap sama...
         const savedUser = localStorage.getItem('splog_session');
         if (savedUser) {
           const userData = JSON.parse(savedUser);
@@ -120,30 +121,11 @@ const AppContent = () => {
       } catch (error) { 
         console.error("Gagal sinkronisasi data riwayat:", error); 
       } finally { 
-        // Tutup loading hanya jika pemicunya bukan update otomatis
-        if (!isSilent) {
-          setTimeout(() => setIsLoading(false), 2500); 
-        }
+        setTimeout(() => setIsLoading(false), 2500); 
       }
   };
 
-  useEffect(() => {
-    // 1. Jalankan fetch pertama kali saat web dibuka
-    fetchAllData();
-
-    /* 2. Set Interval untuk sinkronisasi otomatis (Real-time Polling)
-      Rekomendasi: 30000ms (30 detik) agar tidak terkena limit kuota Google
-    */
-    const autoSync = setInterval(() => {
-      console.log("Menyinkronkan data dengan Spreadsheet...");
-      
-      // Gunakan flag 'silent' agar tidak memunculkan loading spinner yang mengganggu user
-      fetchAllData(true); 
-    }, 1000); 
-
-    // 3. Bersihkan interval saat web ditutup untuk mencegah memory leak
-    return () => clearInterval(autoSync);
-  }, []);
+  useEffect(() => { fetchAllData(); }, []);
 
   const handleLogin = (username, password, rememberMe) => {
     if (!validUsers || validUsers.length === 0) return false;
