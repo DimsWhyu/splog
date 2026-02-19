@@ -7,7 +7,7 @@ import {
 import {
   Calendar, TrendingUp, Package,
   Users, ChevronDown, Check, ChevronLeft, ChevronRight,
-  Layers, Activity, RotateCcw, Target, FileSpreadsheet
+  Layers, Activity, RotateCcw, Target
 } from 'lucide-react';
 
 // --- MAPPING HEX COLORS ---
